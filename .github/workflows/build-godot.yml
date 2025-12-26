@@ -37,7 +37,7 @@ jobs:
           version: 4.0.22
 
       - name: Checkout Godot
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: godotengine/godot
           ref: ${{ inputs.godot_version }}
@@ -45,7 +45,7 @@ jobs:
 
       - name: Checkout LimboAI
         if: inputs.include_limboai == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: limboai/limboai
           ref: ${{ inputs.limboai_version }}
@@ -58,52 +58,51 @@ jobs:
           set -ex
           
           # Build Arguments
-          COMMON_BUILD_ARGS=("production=yes" "optimize=speed" "lto=full")
+          COMMON_BUILD_OPTS=("production=yes" "optimize=speed" "lto=full")
 
-          COMMON_BUILD_ARGS+=("disable_3d=yes")
-          COMMON_BUILD_ARGS+=("disable_advanced_gui=yes")
+          COMMON_BUILD_OPTS+=("module_text_server_adv_enabled=no")
+          COMMON_BUILD_OPTS+=("module_text_server_fb_enabled=yes")
 
-          COMMON_BUILD_ARGS+=("module_text_server_adv_enabled=no")
-          COMMON_BUILD_ARGS+=("module_text_server_fb_enabled=yes")
+          COMMON_BUILD_OPTS+=("module_gridmap_enabled=no")
+          COMMON_BUILD_OPTS+=("module_bmp_enabled=no")
+          COMMON_BUILD_OPTS+=("module_camera_enabled=no")
+          COMMON_BUILD_OPTS+=("module_csg_enabled=no")
+          COMMON_BUILD_OPTS+=("module_hdr_enabled=no")
 
-          COMMON_BUILD_ARGS+=("module_gridmap_enabled=no")
-          COMMON_BUILD_ARGS+=("module_bmp_enabled=no")
-          COMMON_BUILD_ARGS+=("module_camera_enabled=no")
-          COMMON_BUILD_ARGS+=("module_csg_enabled=no")
-          COMMON_BUILD_ARGS+=("module_hdr_enabled=no")
+          COMMON_BUILD_OPTS+=("module_mobile_vr_enabled=no")
+          COMMON_BUILD_OPTS+=("module_openxr_enabled=no")
+          COMMON_BUILD_OPTS+=("module_webxr_enabled=no")
 
-          COMMON_BUILD_ARGS+=("module_mobile_vr_enabled=no")
-          COMMON_BUILD_ARGS+=("module_openxr_enabled=no")
-          COMMON_BUILD_ARGS+=("module_webxr_enabled=no")
-
-          COMMON_BUILD_ARGS+=("module_multiplayer_enabled=no")
-          COMMON_BUILD_ARGS+=("module_enet_enabled=no")
-          COMMON_BUILD_ARGS+=("module_mbedtls_enabled=no")
-          COMMON_BUILD_ARGS+=("module_jsonrpc_enabled=no")
-          COMMON_BUILD_ARGS+=("module_webrtc_enabled=no")
-          COMMON_BUILD_ARGS+=("module_websocket_enabled=no")
+          COMMON_BUILD_OPTS+=("module_multiplayer_enabled=no")
+          COMMON_BUILD_OPTS+=("module_enet_enabled=no")
+          COMMON_BUILD_OPTS+=("module_mbedtls_enabled=no")
+          COMMON_BUILD_OPTS+=("module_jsonrpc_enabled=no")
+          COMMON_BUILD_OPTS+=("module_webrtc_enabled=no")
+          COMMON_BUILD_OPTS+=("module_websocket_enabled=no")
 
           
           # Editor - Linux
-          scons "${COMMON_BUILD_ARGS[@]}" platform=linuxbsd ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" platform=linuxbsd ccflags=-march=x86-64-v2
           
           # Editor - Windows
-          scons "${COMMON_BUILD_ARGS[@]}" platform=windows ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v2
           
           # Templates
-          COMMON_EXPORT_OPTS=("target=template_release")
+          COMMON_EXPORT_TEMPLATE_OPTS=("target=template_release")
+          COMMON_EXPORT_TEMPLATE_OPTS+=("disable_3d=yes")
+          COMMON_EXPORT_TEMPLATE_OPTS+=("disable_advanced_gui=yes")
           
           # Linux Template
-          scons "${COMMON_BUILD_ARGS[@]}" "${COMMON_EXPORT_OPTS[@]}" platform=linuxbsd arch=x86_64 ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=linuxbsd arch=x86_64 ccflags=-march=x86-64-v2
           
           # Windows Template
-          scons "${COMMON_BUILD_ARGS[@]}" "${COMMON_EXPORT_OPTS[@]}" platform=windows arch=x86_64 ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=windows arch=x86_64 ccflags=-march=x86-64-v2
           
           # Web Template
-          scons "${COMMON_BUILD_ARGS[@]}" "${COMMON_EXPORT_OPTS[@]}" platform=web dlink_enabled=yes
+          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=web dlink_enabled=yes
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: godot-builds
           path: godot/bin/
