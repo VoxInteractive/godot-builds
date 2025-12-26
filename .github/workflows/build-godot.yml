@@ -50,6 +50,11 @@ jobs:
           ref: ${{ inputs.limboai_version }}
           path: godot/modules/limboai
 
+      - name: Setup Direct3D12 Dependencies
+        shell: bash
+        working-directory: godot
+        run: python misc/scripts/install_d3d12_sdk_windows.py
+
       - name: Build Godot
         shell: bash
         working-directory: godot
@@ -86,7 +91,7 @@ jobs:
           scons "${COMMON_BUILD_OPTS[@]}" platform=linuxbsd ccflags=-march=x86-64-v3
           
           # Editor - Windows
-          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v3 d3d12=no
+          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v3
           
           # Templates
           COMMON_EXPORT_TEMPLATE_OPTS=("target=template_release")
