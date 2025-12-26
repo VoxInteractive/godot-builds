@@ -1,0 +1,110 @@
+name: 'Build Godot'
+description: 'Builds Godot Engine with LimboAI and custom optimizations'
+inputs:
+  godot_version:
+    description: 'Godot version/branch to build'
+    required: false
+    default: '4.5'
+  include_limboai:
+    description: 'Whether to include LimboAI module'
+    required: false
+    default: 'false'
+  limboai_version:
+    description: 'LimboAI version/branch'
+    required: false
+    default: 'master'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Verify Runner
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" != "Linux" ]; then
+          echo "::error::This action is designed for Linux runners (e.g. ubuntu-latest)."
+          exit 1
+        fi
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential mingw-w64 pkg-config libx11-dev libxcursor-dev libxinerama-dev libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libpulse-dev libudev-dev libxi-dev libxrandr-dev libwayland-dev yasm
+        python3 -m pip install scons
+
+    - name: Setup Emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: 4.0.22
+
+    - name: Checkout Godot
+      uses: actions/checkout@v4
+      with:
+        repository: godotengine/godot
+        ref: ${{ inputs.godot_version }}
+        path: godot
+
+    - name: Checkout LimboAI
+      if: inputs.include_limboai == 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: limboai/limboai
+        ref: ${{ inputs.limboai_version }}
+        path: godot/modules/limboai
+
+    - name: Build Godot
+      shell: bash
+      working-directory: godot
+      run: |
+        set -ex
+        
+        # Build Arguments
+        COMMON_BUILD_ARGS=("production=yes" "optimize=speed" "lto=full")
+
+        COMMON_BUILD_ARGS+=("disable_3d=yes")
+        COMMON_BUILD_ARGS+=("disable_advanced_gui=yes")
+
+        COMMON_BUILD_ARGS+=("module_text_server_adv_enabled=no")
+        COMMON_BUILD_ARGS+=("module_text_server_fb_enabled=yes")
+
+        COMMON_BUILD_ARGS+=("module_gridmap_enabled=no")
+        COMMON_BUILD_ARGS+=("module_bmp_enabled=no")
+        COMMON_BUILD_ARGS+=("module_camera_enabled=no")
+        COMMON_BUILD_ARGS+=("module_csg_enabled=no")
+        COMMON_BUILD_ARGS+=("module_hdr_enabled=no")
+
+        COMMON_BUILD_ARGS+=("module_mobile_vr_enabled=no")
+        COMMON_BUILD_ARGS+=("module_openxr_enabled=no")
+        COMMON_BUILD_ARGS+=("module_webxr_enabled=no")
+
+        COMMON_BUILD_ARGS+=("module_multiplayer_enabled=no")
+        COMMON_BUILD_ARGS+=("module_enet_enabled=no")
+        COMMON_BUILD_ARGS+=("module_mbedtls_enabled=no")
+        COMMON_BUILD_ARGS+=("module_jsonrpc_enabled=no")
+        COMMON_BUILD_ARGS+=("module_webrtc_enabled=no")
+        COMMON_BUILD_ARGS+=("module_websocket_enabled=no")
+
+        
+        # Editor - Linux
+        scons "${COMMON_BUILD_ARGS[@]}" platform=linuxbsd ccflags=-march=x86-64-v2
+        
+        # Editor - Windows
+        scons "${COMMON_BUILD_ARGS[@]}" platform=windows ccflags=-march=x86-64-v2
+        
+        # Templates
+        COMMON_EXPORT_OPTS=("target=template_release")
+        
+        # Linux Template
+        scons "${COMMON_BUILD_ARGS[@]}" "${COMMON_EXPORT_OPTS[@]}" platform=linuxbsd arch=x86_64 ccflags=-march=x86-64-v2
+        
+        # Windows Template
+        scons "${COMMON_BUILD_ARGS[@]}" "${COMMON_EXPORT_OPTS[@]}" platform=windows arch=x86_64 ccflags=-march=x86-64-v2
+        
+        # Web Template
+        scons "${COMMON_BUILD_ARGS[@]}" "${COMMON_EXPORT_OPTS[@]}" platform=web dlink_enabled=yes
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: godot-builds
+        path: godot/bin/
