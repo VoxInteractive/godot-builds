@@ -1,7 +1,6 @@
 name: Build Godot
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       godot_version:
