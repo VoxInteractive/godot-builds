@@ -86,7 +86,7 @@ jobs:
           scons "${COMMON_BUILD_OPTS[@]}" platform=linuxbsd ccflags=-march=x86-64-v3
           
           # Editor - Windows
-          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v3
+          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v3 d3d12=no
           
           # Templates
           COMMON_EXPORT_TEMPLATE_OPTS=("target=template_release")
