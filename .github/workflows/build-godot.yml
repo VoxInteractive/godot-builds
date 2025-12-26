@@ -59,9 +59,8 @@ jobs:
           # Build Arguments
           COMMON_BUILD_OPTS=("production=yes" "optimize=speed" "lto=full")
 
-          COMMON_BUILD_OPTS+=("module_text_server_adv_enabled=no")
-          COMMON_BUILD_OPTS+=("module_text_server_fb_enabled=yes")
 
+          COMMON_BUILD_OPTS+=("module_raycast_enabled=no")
           COMMON_BUILD_OPTS+=("module_gridmap_enabled=no")
           COMMON_BUILD_OPTS+=("module_basis_universal_enabled=no")
           COMMON_BUILD_OPTS+=("module_bmp_enabled=no")
@@ -69,9 +68,8 @@ jobs:
           COMMON_BUILD_OPTS+=("module_csg_enabled=no")
           COMMON_BUILD_OPTS+=("module_hdr_enabled=no")
 
-          COMMON_BUILD_OPTS+=("module_mobile_vr_enabled=no")
-          COMMON_BUILD_OPTS+=("module_openxr_enabled=no")
-          COMMON_BUILD_OPTS+=("module_webxr_enabled=no")
+          COMMON_BUILD_OPTS+=("module_text_server_adv_enabled=no")
+          COMMON_BUILD_OPTS+=("module_text_server_fb_enabled=yes")
 
           COMMON_BUILD_OPTS+=("module_multiplayer_enabled=no")
           COMMON_BUILD_OPTS+=("module_enet_enabled=no")
@@ -80,12 +78,15 @@ jobs:
           COMMON_BUILD_OPTS+=("module_webrtc_enabled=no")
           COMMON_BUILD_OPTS+=("module_websocket_enabled=no")
 
+          COMMON_BUILD_OPTS+=("module_mobile_vr_enabled=no")
+          COMMON_BUILD_OPTS+=("module_openxr_enabled=no")
+          COMMON_BUILD_OPTS+=("module_webxr_enabled=no")
           
           # Editor - Linux
-          scons "${COMMON_BUILD_OPTS[@]}" platform=linuxbsd ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" platform=linuxbsd ccflags=-march=x86-64-v3
           
           # Editor - Windows
-          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v3
           
           # Templates
           COMMON_EXPORT_TEMPLATE_OPTS=("target=template_release")
@@ -93,10 +94,10 @@ jobs:
           COMMON_EXPORT_TEMPLATE_OPTS+=("disable_advanced_gui=yes")
           
           # Linux Template
-          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=linuxbsd arch=x86_64 ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=linuxbsd arch=x86_64 ccflags=-march=x86-64-v3
           
           # Windows Template
-          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=windows arch=x86_64 ccflags=-march=x86-64-v2
+          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=windows arch=x86_64 ccflags=-march=x86-64-v3
           
           # Web Template
           scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=web dlink_enabled=yes
