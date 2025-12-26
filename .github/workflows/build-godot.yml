@@ -64,6 +64,9 @@ jobs:
           # Build Arguments
           COMMON_BUILD_OPTS=("production=yes" "optimize=speed" "lto=full")
 
+          COMMON_BUILD_OPTS+=("module_godot_physics_2d_enabled=no")
+          COMMON_BUILD_OPTS+=("module_godot_physics_3d_enabled=no")
+          COMMON_BUILD_OPTS+=("module_jolt_physics_enabled=no")
 
           COMMON_BUILD_OPTS+=("module_raycast_enabled=no")
           COMMON_BUILD_OPTS+=("module_gridmap_enabled=no")
