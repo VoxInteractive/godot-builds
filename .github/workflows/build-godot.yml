@@ -64,6 +64,7 @@ jobs:
           COMMON_BUILD_OPTS+=("module_text_server_fb_enabled=yes")
 
           COMMON_BUILD_OPTS+=("module_gridmap_enabled=no")
+          COMMON_BUILD_OPTS+=("module_basis_universal_enabled=no")
           COMMON_BUILD_OPTS+=("module_bmp_enabled=no")
           COMMON_BUILD_OPTS+=("module_camera_enabled=no")
           COMMON_BUILD_OPTS+=("module_csg_enabled=no")
