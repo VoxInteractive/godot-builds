@@ -70,14 +70,16 @@ jobs:
           COMMON_BUILD_OPTS+=("optimize=speed")
           COMMON_BUILD_OPTS+=("lto=full")
           
+          X86_64_OPTS=("ccflags=-march=x86-64-v3")
+
           #
           ### Editor
           #
           # Linux
-          scons "${COMMON_BUILD_OPTS[@]}" platform=linuxbsd ccflags=-march=x86-64-v3
+          scons platform=linuxbsd "${COMMON_BUILD_OPTS[@]}" "${X86_64_OPTS[@]}"
           
           # Windows
-          scons "${COMMON_BUILD_OPTS[@]}" platform=windows ccflags=-march=x86-64-v3
+          scons platform=windows "${COMMON_BUILD_OPTS[@]}" "${X86_64_OPTS[@]}"
           
           
           #
@@ -138,13 +140,13 @@ jobs:
           COMMON_EXPORT_TEMPLATE_OPTS+=("module_zip_enabled=no")
           
           # Linux Template
-          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=linuxbsd arch=x86_64 ccflags=-march=x86-64-v3
+          scons platform=linuxbsd arch=x86_64 "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" "${X86_64_OPTS[@]}"
           
           # Windows Template
-          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=windows arch=x86_64 ccflags=-march=x86-64-v3
+          scons platform=windows arch=x86_64 "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" "${X86_64_OPTS[@]}"
           
           # Web Template
-          scons "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" platform=web dlink_enabled=yes
+          scons platform=web dlink_enabled=yes "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v6
