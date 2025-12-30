@@ -151,3 +151,5 @@ jobs:
         with:
           name: godot-builds
           path: godot/bin/
+          overwrite: true
+          compression-level: 9
