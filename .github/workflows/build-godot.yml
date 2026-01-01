@@ -20,138 +20,136 @@ on:
         type: string
 
 jobs:
-  build:
+  build-editor:
+    name: Editor (${{ matrix.platform }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linuxbsd, windows]
     steps:
       - name: Install Dependencies
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential mingw-w64 pkg-config libx11-dev libxcursor-dev libxinerama-dev libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libpulse-dev libudev-dev libxi-dev libxrandr-dev libwayland-dev yasm
-          python3 -m pip install --no-cache-dir scons
-
-      - name: Switch to POSIX MinGW32
-        shell: bash
-        run: sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
-
-      - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v14
+        uses: ./.github/actions/install-dependencies
         with:
-          version: 4.0.22
+          platform: ${{ matrix.platform }}
 
-      - name: Checkout Godot
-        uses: actions/checkout@v6
+      - name: Setup Godot Source
+        uses: ./.github/actions/setup-source
         with:
-          repository: godotengine/godot
-          ref: ${{ inputs.godot_version }}
-          path: godot
+          godot_version: ${{ inputs.godot_version }}
+          include_limboai: ${{ inputs.include_limboai }}
+          limboai_version: ${{ inputs.limboai_version }}
 
-      - name: Checkout LimboAI
-        if: inputs.include_limboai == 'true'
-        uses: actions/checkout@v6
-        with:
-          repository: limboai/limboai
-          ref: ${{ inputs.limboai_version }}
-          path: godot/modules/limboai
-
-      - name: Setup Direct3D12 Dependencies
-        shell: bash
-        working-directory: godot
-        run: python misc/scripts/install_d3d12_sdk_windows.py
-
-      - name: Build Godot
+      - name: Build Editor
         shell: bash
         working-directory: godot
         run: |
-          set -ex
-          
-          # Common Build Arguments that apply to both the editor and the export templates
-          COMMON_BUILD_OPTS=("production=yes")
-          COMMON_BUILD_OPTS+=("optimize=speed")
-          COMMON_BUILD_OPTS+=("lto=full")
-          
-          X86_64_OPTS=("ccflags=-march=x86-64-v2")
-
-          #
-          ### Editor
-          #
-          # Linux
-          scons platform=linuxbsd "${COMMON_BUILD_OPTS[@]}" "${X86_64_OPTS[@]}"
-          
-          # Windows
-          scons platform=windows "${COMMON_BUILD_OPTS[@]}" "${X86_64_OPTS[@]}"
-          
-          
-          #
-          ### Export Templates
-          #
-          COMMON_EXPORT_TEMPLATE_OPTS=("target=template_release")
-
-          # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html#disabling-advanced-text-server
-          # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html#disabling-3d
-          # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html#disabling-advanced-gui-objects
-          # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html#disabling-physics-engines
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_text_server_adv_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_text_server_fb_enabled=yes")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("disable_3d=yes")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("disable_physics_3d=yes")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("disable_advanced_gui=yes")
-
-          # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html#disabling-unwanted-modules
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_astcenc_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_basis_universal_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_bcdec_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_bmp_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_camera_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_csg_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_dds_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_enet_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_etcpak_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_fbx_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_gltf_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_gridmap_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_hdr_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_interactive_music_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_jsonrpc_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_ktx_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_mbedtls_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_meshoptimizer_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_dr_mp3_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_mobile_vr_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_msdfgen_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_multiplayer_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_noise_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_navigation_2d_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_navigation_3d_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_ogg_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_openxr_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_raycast_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_regex_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_svg_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_tga_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_theora_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_tinyexr_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_upnp_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_vhacd_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_vorbis_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_webrtc_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_websocket_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_webxr_enabled=no")
-          COMMON_EXPORT_TEMPLATE_OPTS+=("module_zip_enabled=no")
-          
-          # Linux Template
-          scons platform=linuxbsd arch=x86_64 "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" "${X86_64_OPTS[@]}"
-          
-          # Windows Template
-          scons platform=windows arch=x86_64 "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}" "${X86_64_OPTS[@]}"
-          
-          # Web Template
-          scons platform=web dlink_enabled=yes "${COMMON_BUILD_OPTS[@]}" "${COMMON_EXPORT_TEMPLATE_OPTS[@]}"
+          scons platform=${{ matrix.platform }} production=yes optimize=speed lto=full ccflags=-march=x86-64-v2
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: godot-builds
+          name: godot-editor-${{ matrix.platform }}
+          path: godot/bin/
+          overwrite: true
+          compression-level: 9
+
+  build-export-template:
+    name: Template (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linuxbsd, windows, web]
+    steps:
+      - name: Install Dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          platform: ${{ matrix.platform }}
+
+      - name: Setup Godot Source
+        uses: ./.github/actions/setup-source
+        with:
+          godot_version: ${{ inputs.godot_version }}
+          include_limboai: ${{ inputs.include_limboai }}
+          limboai_version: ${{ inputs.limboai_version }}
+          platform: ${{ matrix.platform }}
+
+      - name: Build Export Template
+        shell: bash
+        working-directory: godot
+        run: |          
+          BUILD_OPTS=("platform=${{ matrix.platform }}")
+          # Turn on optimisations
+          BUILD_OPTS+=("target=template_release")
+          BUILD_OPTS+=("production=yes")
+          BUILD_OPTS+=("optimize=speed")
+          BUILD_OPTS+=("lto=full")
+          
+          # Reduce size by disabling features
+          # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html
+          BUILD_OPTS+=("module_text_server_adv_enabled=no")
+          BUILD_OPTS+=("module_text_server_fb_enabled=yes")
+          BUILD_OPTS+=("disable_advanced_gui=yes")
+          BUILD_OPTS+=("disable_3d=yes")
+          BUILD_OPTS+=("disable_physics_3d=yes")
+          
+          # Reduce size by disabling extra modules
+          # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html#disabling-unwanted-modules
+          BUILD_OPTS+=("module_astcenc_enabled=no")
+          BUILD_OPTS+=("module_basis_universal_enabled=no")
+          BUILD_OPTS+=("module_bcdec_enabled=no")
+          BUILD_OPTS+=("module_bmp_enabled=no")
+          BUILD_OPTS+=("module_camera_enabled=no")
+          BUILD_OPTS+=("module_csg_enabled=no")
+          BUILD_OPTS+=("module_dds_enabled=no")
+          BUILD_OPTS+=("module_enet_enabled=no")
+          BUILD_OPTS+=("module_etcpak_enabled=no")
+          BUILD_OPTS+=("module_fbx_enabled=no")
+          BUILD_OPTS+=("module_gltf_enabled=no")
+          BUILD_OPTS+=("module_gridmap_enabled=no")
+          BUILD_OPTS+=("module_hdr_enabled=no")
+          BUILD_OPTS+=("module_interactive_music_enabled=no")
+          BUILD_OPTS+=("module_jsonrpc_enabled=no")
+          BUILD_OPTS+=("module_ktx_enabled=no")
+          BUILD_OPTS+=("module_mbedtls_enabled=no")
+          BUILD_OPTS+=("module_meshoptimizer_enabled=no")
+          BUILD_OPTS+=("module_dr_mp3_enabled=no")
+          BUILD_OPTS+=("module_mobile_vr_enabled=no")
+          BUILD_OPTS+=("module_msdfgen_enabled=no")
+          BUILD_OPTS+=("module_multiplayer_enabled=no")
+          BUILD_OPTS+=("module_noise_enabled=no")
+          BUILD_OPTS+=("module_navigation_2d_enabled=no")
+          BUILD_OPTS+=("module_navigation_3d_enabled=no")
+          BUILD_OPTS+=("module_ogg_enabled=no")
+          BUILD_OPTS+=("module_openxr_enabled=no")
+          BUILD_OPTS+=("module_raycast_enabled=no")
+          BUILD_OPTS+=("module_regex_enabled=no")
+          BUILD_OPTS+=("module_svg_enabled=no")
+          BUILD_OPTS+=("module_tga_enabled=no")
+          BUILD_OPTS+=("module_theora_enabled=no")
+          BUILD_OPTS+=("module_tinyexr_enabled=no")
+          BUILD_OPTS+=("module_upnp_enabled=no")
+          BUILD_OPTS+=("module_vhacd_enabled=no")
+          BUILD_OPTS+=("module_vorbis_enabled=no")
+          BUILD_OPTS+=("module_webrtc_enabled=no")
+          BUILD_OPTS+=("module_websocket_enabled=no")
+          BUILD_OPTS+=("module_webxr_enabled=no")
+          BUILD_OPTS+=("module_zip_enabled=no")
+
+          if [[ "${{ matrix.platform }}" == "web" ]]; then
+            BUILD_OPTS+=("dlink_enabled=yes")
+          else
+            BUILD_OPTS+=("arch=x86_64")
+            BUILD_OPTS+=("ccflags=-march=x86-64-v2")
+          fi
+          
+          scons "${BUILD_OPTS[@]}"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: godot-template-${{ matrix.platform }}
           path: godot/bin/
           overwrite: true
           compression-level: 9

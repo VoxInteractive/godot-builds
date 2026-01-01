@@ -1,0 +1,31 @@
+name: Setup Godot Source
+description: Checks out Godot, LimboAI, and prepares source dependencies
+
+inputs:
+  godot_version:
+    description: 'Godot version/branch'
+    required: true
+  include_limboai:
+    description: 'Include LimboAI'
+    required: true
+  limboai_version:
+    description: 'LimboAI version'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Godot
+      uses: actions/checkout@v6
+      with:
+        repository: godotengine/godot
+        ref: ${{ inputs.godot_version }}
+        path: godot
+
+    - name: Checkout LimboAI
+      if: inputs.include_limboai == 'true'
+      uses: actions/checkout@v6
+      with:
+        repository: limboai/limboai
+        ref: ${{ inputs.limboai_version }}
+        path: godot/modules/limboai
