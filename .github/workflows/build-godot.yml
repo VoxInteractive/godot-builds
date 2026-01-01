@@ -31,12 +31,12 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies.yml
+        uses: ./.github/actions/install-dependencies
         with:
           platform: ${{ matrix.platform }}
 
       - name: Setup Godot Source
-        uses: ./.github/actions/setup-source.yml
+        uses: ./.github/actions/setup-source
         with:
           godot_version: ${{ inputs.godot_version }}
           include_limboai: ${{ inputs.include_limboai }}
@@ -67,12 +67,12 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies.yml
+        uses: ./.github/actions/install-dependencies
         with:
           platform: ${{ matrix.platform }}
 
       - name: Setup Godot Source
-        uses: ./.github/actions/setup-source.yml
+        uses: ./.github/actions/setup-source
         with:
           godot_version: ${{ inputs.godot_version }}
           include_limboai: ${{ inputs.include_limboai }}
