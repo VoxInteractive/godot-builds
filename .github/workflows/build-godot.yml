@@ -37,17 +37,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
-        with:
-          platform: ${{ matrix.platform }}
-
       - name: Setup Godot Source
         uses: ./.github/actions/setup-source
         with:
           godot_version: ${{ inputs.godot_version }}
           include_limboai: ${{ inputs.include_limboai }}
           limboai_version: ${{ inputs.limboai_version }}
+
+      - name: Install Dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          platform: ${{ matrix.platform }}
 
       - name: Build Editor
         shell: bash
@@ -86,17 +86,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
-        with:
-          platform: ${{ matrix.platform }}
-
       - name: Setup Godot Source
         uses: ./.github/actions/setup-source
         with:
           godot_version: ${{ inputs.godot_version }}
           include_limboai: ${{ inputs.include_limboai }}
           limboai_version: ${{ inputs.limboai_version }}
+          platform: ${{ matrix.platform }}
+
+      - name: Install Dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
           platform: ${{ matrix.platform }}
 
       # https://docs.godotengine.org/en/latest/engine_details/development/compiling/compiling_with_script_encryption_key.html
