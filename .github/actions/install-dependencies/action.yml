@@ -13,13 +13,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install SCons
+      shell: bash
+      run: python3 -m pip install --no-cache-dir --break-system-packages scons
+
     - name: Install Common Dependencies
       if: inputs.platform != 'macos'
       shell: bash
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential pkg-config yasm
-        python3 -m pip install --no-cache-dir --break-system-packages scons
 
 
     - name: Install Dependencies (Linux)

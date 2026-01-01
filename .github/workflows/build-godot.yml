@@ -90,7 +90,6 @@ jobs:
           godot_version: ${{ inputs.godot_version }}
           include_limboai: ${{ inputs.include_limboai }}
           limboai_version: ${{ inputs.limboai_version }}
-          platform: ${{ matrix.platform }}
 
       - name: Install Dependencies
         uses: ./.github/actions/install-dependencies
