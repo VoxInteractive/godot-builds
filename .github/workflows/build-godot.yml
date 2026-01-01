@@ -28,15 +28,13 @@ jobs:
       matrix:
         platform: [linuxbsd, windows]
     steps:
-      - uses: actions/checkout@v6
-
       - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
+        uses: ./.github/actions/install-dependencies.yml
         with:
           platform: ${{ matrix.platform }}
 
       - name: Setup Godot Source
-        uses: ./.github/actions/setup-source
+        uses: ./.github/actions/setup-source.yml
         with:
           godot_version: ${{ inputs.godot_version }}
           include_limboai: ${{ inputs.include_limboai }}
@@ -64,15 +62,13 @@ jobs:
       matrix:
         platform: [linuxbsd, windows, web]
     steps:
-      - uses: actions/checkout@v6
-
       - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
+        uses: ./.github/actions/install-dependencies.yml
         with:
           platform: ${{ matrix.platform }}
 
       - name: Setup Godot Source
-        uses: ./.github/actions/setup-source
+        uses: ./.github/actions/setup-source.yml
         with:
           godot_version: ${{ inputs.godot_version }}
           include_limboai: ${{ inputs.include_limboai }}
