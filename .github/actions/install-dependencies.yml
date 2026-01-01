@@ -20,11 +20,10 @@ runs:
         sudo apt-get install -y build-essential pkg-config yasm
         python3 -m pip install --no-cache-dir --break-system-packages scons
 
-    - name: Setup Emscripten
-      if: inputs.platform == 'web'
-      uses: mymindstorm/setup-emsdk@v14
-      with:
-        version: ${{ inputs.emsdk_version }}
+    - name: Install Dependencies (Linux)
+      if: inputs.platform == 'linuxbsd'
+      shell: bash
+      run: sudo apt-get install -y libx11-dev libxcursor-dev libxinerama-dev libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libpulse-dev libudev-dev libxi-dev libxrandr-dev libwayland-dev
 
     - name: Install Cross-Compilation Dependencies (Windows)
       if: inputs.platform == 'windows'
@@ -39,7 +38,8 @@ runs:
       working-directory: godot
       run: python misc/scripts/install_d3d12_sdk_windows.py
 
-    - name: Install Dependencies (Linux)
-      if: inputs.platform == 'linuxbsd'
-      shell: bash
-      run: sudo apt-get install -y libx11-dev libxcursor-dev libxinerama-dev libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libpulse-dev libudev-dev libxi-dev libxrandr-dev libwayland-dev
+    - name: Setup Emscripten (Web)
+      if: inputs.platform == 'web'
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: ${{ inputs.emsdk_version }}
