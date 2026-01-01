@@ -14,6 +14,7 @@ runs:
   using: "composite"
   steps:
     - name: Install Common Dependencies
+      if: inputs.platform != 'macos'
       shell: bash
       run: |
         sudo apt-get update
