@@ -59,3 +59,8 @@ runs:
       shell: cmd
       working-directory: godot
       run: python misc/scripts/install_d3d12_sdk_windows.py
+
+    - name: Install OpenSSL (Windows)
+      if: inputs.platform == 'windows'
+      shell: cmd
+      run: choco install openssl.light
