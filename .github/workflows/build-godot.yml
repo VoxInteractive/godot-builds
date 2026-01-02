@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: godot-editor-${{ matrix.platform }}
-          path: godot/bin/
+          path: godot/bin/*.*
           overwrite: true
           compression-level: 9
 
@@ -185,6 +185,6 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: godot-template-${{ matrix.platform }}
-          path: godot/bin/
+          path: godot/bin/*.*
           overwrite: true
           compression-level: 9
