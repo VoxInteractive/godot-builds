@@ -20,15 +20,66 @@ on:
         type: string
 
 jobs:
+  build-editor:
+    name: Editor (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos, windows]
+        include:
+          - platform: macos
+            runner: macos-15-intel
+          - platform: windows
+            runner: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Godot Source
+        uses: ./.github/actions/setup-source
+        with:
+          godot_version: ${{ inputs.godot_version }}
+          include_limboai: ${{ inputs.include_limboai }}
+          limboai_version: ${{ inputs.limboai_version }}
+
+      - name: Install Dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          platform: ${{ matrix.platform }}
+
+      - name: Build Editor
+        shell: bash
+        working-directory: godot
+        run: |
+          BUILD_OPTS="platform=${{ matrix.platform }} production=yes optimize=speed lto=full ccflags=-march=x86-64-v2"
+          if [[ "${{ matrix.platform }}" == "macos" ]]; then
+            BUILD_OPTS="$BUILD_OPTS generate_bundle=yes"
+          fi
+          scons $BUILD_OPTS
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: godot-editor-${{ matrix.platform }}
+          path: godot/bin/
+          overwrite: true
+          compression-level: 9
+
   build-export-template:
     name: Template (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        platform: [linuxbsd]
+        platform: [linuxbsd, macos, windows, web]
         include:
           - platform: linuxbsd
+            runner: ubuntu-latest
+          - platform: macos
+            runner: macos-15
+          - platform: windows
+            runner: ubuntu-latest
+          - platform: web
             runner: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -130,7 +181,10 @@ jobs:
           
           scons "${BUILD_OPTS[@]}"
 
-      - name: List Artifacts
-        shell: bash
-        working-directory: godot/bin/
-        run: ls -lh
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: godot-template-${{ matrix.platform }}
+          path: godot/bin/
+          overwrite: true
+          compression-level: 9
