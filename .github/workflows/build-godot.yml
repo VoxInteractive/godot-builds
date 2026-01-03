@@ -113,7 +113,6 @@ jobs:
           # Turn on optimisations
           BUILD_OPTS+=("target=template_release")
           BUILD_OPTS+=("production=yes")
-          BUILD_OPTS+=("lto=full")
           
           # Reduce size by disabling features
           # https://docs.godotengine.org/en/latest/engine_details/development/compiling/optimizing_for_size.html
@@ -162,6 +161,7 @@ jobs:
           case "${{ matrix.platform }}" in
             macos)
               BUILD_OPTS+=("optimize=speed")
+              BUILD_OPTS+=("lto=full")
               BUILD_OPTS+=("generate_bundle=yes")
               ;;
             web)
@@ -170,6 +170,7 @@ jobs:
               ;;
             *)
               BUILD_OPTS+=("optimize=speed")
+              BUILD_OPTS+=("lto=full")
               BUILD_OPTS+=("arch=x86_64")
               BUILD_OPTS+=("ccflags=-march=x86-64-v2")
               ;;
