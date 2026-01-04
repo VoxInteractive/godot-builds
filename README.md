@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="https://github.com/VoxInteractive/godot-daily-builds/actions/workflows/build-godot.yml"><img src="https://github.com/VoxInteractive/godot-daily-builds/actions/workflows/build-godot.yml/badge.svg" alt="Build Godot"></a>
+</p>
+
 # Unofficial Daily Builds Of The Godot Game Engine 
 
 All builds are compiled in release mode with compile-time optimisations turned on.
